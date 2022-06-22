@@ -1,0 +1,28 @@
+{
+  "name": "dashifen/bumper",
+  "description": "A PHP script that uses the current Git branch name to update version numbers in a list of files.",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "David Dashifen Kees",
+      "email": "dashifen@dashifen.com",
+      "role": "developer"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Dashifen\\Composer\\": "src"
+    }
+  },
+  "require": {
+    "dashifen/exception": "^1.2",
+    "dashifen/git-branch": "^1.0",
+    "dashifen/repository": "^3.1",
+    "dashifen/version": "^1.0"
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true
+  }
+}
