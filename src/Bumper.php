@@ -321,7 +321,7 @@ class Bumper implements BumperInterface
   {
     $messages = [
       'missing' => 'Unable to identify version in %s.',
-      'newer'   => 'Found %s in %s greater than or equal to $s.',
+      'newer'   => 'Found %s in %s greater than or equal to %s.',
     ];
     
     $canBump = true;
@@ -372,25 +372,7 @@ class Bumper implements BumperInterface
         
         $content = file_get_contents($filename);
         $altered = str_replace($version, $this->next, $content);
-        if ($content !== $altered && substr($version, -2) === '.0') {
-          
-          // if we were unable to alter our content, let's try again but chop
-          // off the somewhat insignificant "zero" that's at the end of the
-          // version string. so, if it is 1.2.0, let's see if we can find 1.2
-          // in the file instead.  if this doesn't work, we give up.
-          
-          $shortVersion = substr($version, 0, strlen($version) - 2);
-          $altered = str_replace($shortVersion, $this->next, $content);
-          if ($content === $altered) {
-            $message = 'Could not bump %s, either from %s or %s to %s.';
-            $message = sprintf($message, $filename, $version, $shortVersion, $this->next);
-            $this->echo($message, 'error');
-          }
-        }
-        
-        if ($content !== $altered) {
-          file_put_contents($filename, $altered);
-        }
+        file_put_contents($filename, $altered);
       }
     }
     
