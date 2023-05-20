@@ -12,9 +12,9 @@ class Bumper implements BumperInterface
   use GitAwareTrait;
   
   protected Closure $fileGetter;
-  private Version $current;
-  private Version $next;
-  private array $files;
+  protected Version $current;
+  protected Version $next;
+  protected array $files;
   
   public function __construct()
   {
