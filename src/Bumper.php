@@ -57,7 +57,7 @@ class Bumper implements BumperInterface
   public function setFileGetter(Closure $fileGetter): void
   {
     // we could do more work here to confirm that the parameter is appropriate,
-    // but much of that work is done in the bump method so we'll just let it
+    // but much of that work is done in the bump method, so we'll just let it
     // handle things.
     
     $this->fileGetter = $fileGetter;
@@ -111,7 +111,7 @@ class Bumper implements BumperInterface
    * @return void
    * @throws BumperException
    */
-  private function setFiles(): void
+  protected function setFiles(): void
   {
     $filenames = $this->fileGetter->call($this);
     if (!is_array($filenames) || sizeof($filenames) === 0) {
@@ -138,7 +138,7 @@ class Bumper implements BumperInterface
    *
    * @return Version|null
    */
-  private function findVersionNumber(string $file): ?Version
+  protected function findVersionNumber(string $file): ?Version
   {
     if (($content = file_get_contents($file)) !== false) {
       foreach (explode("\n", $content) as $line) {
@@ -180,13 +180,13 @@ class Bumper implements BumperInterface
    * maybeFindVersion
    *
    * Given a line that might contain a version number, confirm whether or not
-   * it does returning a Version object if so or null otherwise.
+   * it does and return a Version object if so or null otherwise.
    *
    * @param string $line
    *
    * @return Version|null
    */
-  private function maybeFindVersion(string $line): ?Version
+  protected function maybeFindVersion(string $line): ?Version
   {
     // the pattern matches everything except for dots, plus signs, and digits.
     // these are the characters that can make up a semantic version.  anything
@@ -209,7 +209,7 @@ class Bumper implements BumperInterface
    * @return void
    * @throws BumperException
    */
-  private function setVersions(): void
+  protected function setVersions(): void
   {
     // the getGitTags method of our GitAwareTrait explicitly returns only tags
     // that match semantic versioning patterns.  even better:  it returns them
@@ -224,7 +224,7 @@ class Bumper implements BumperInterface
       
       // we set both of these Version properties here, but we want explicitly
       // different objects.  that's because the calculateNextVersion method
-      // will change the next property so we can't have them be references for
+      // will change the next property, so we can't have them be references for
       // each other.
       
       $this->current = new Version($currentTag);
@@ -252,7 +252,7 @@ class Bumper implements BumperInterface
    * @return void
    * @throws BumperException
    */
-  private function calculateNextVersion(): void
+  protected function calculateNextVersion(): void
   {
     if (($branch = $this->getGitBranch())->isTypeUnknown()) {
       throw new BumperException($branch . ' is an invalid branch name.',
@@ -354,7 +354,7 @@ class Bumper implements BumperInterface
     return $canBump;
   }
   
-  private function bumpFiles(bool $simulate): bool
+  protected function bumpFiles(bool $simulate): bool
   {
     $message = $simulate
       ? 'Simulating bump to %s from %s to %s.'
@@ -387,7 +387,7 @@ class Bumper implements BumperInterface
    *
    * @return string
    */
-  private function updateLocalRepo(): string
+  protected function updateLocalRepo(): string
   {
     exec('git add .');
     exec('git commit -m "Versions bumped to ' . $this->next .'."');
