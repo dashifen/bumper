@@ -378,12 +378,13 @@ class Bumper implements BumperInterface
         continue;
       }
       
-      if (Version::compare($version, $this->next) !== -1) {
+      if (version_compare($version, $this->next, '>=')) {
         
-        // the Version::compare method acts like the <=> operator; if the
-        // l-value is less than the r-value, it returns -1.  since that's what
-        // we want to happen, if it's not that, then the version in the file
-        // is equal to or greater than our next version and that's a problem.
+        // the PHP version_compare function will return true if $version is
+        // greater than or equal to $this->next due to our use of that operator
+        // as the third parameter.  clearly, something's up if the current
+        // version is greater than what we want to bump to, so we'll have to
+        // let a dev figure out what's going on in this case.
         
         $message = sprintf($messages['newer'], $version, $filename, $this->next);
         $this->echo($message, 'warning');
