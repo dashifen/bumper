@@ -16,6 +16,7 @@
     }
   },
   "require": {
+    "php": ">=8.0",
     "dashifen/exception": "^1.2",
     "dashifen/git-branch": "^1.0",
     "dashifen/repository": "^3.1",

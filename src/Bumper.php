@@ -195,7 +195,7 @@ class Bumper implements BumperInterface
     
     try {
       return new Version(preg_replace('/[^.+\d]/', '', $line));
-    } catch (InvalidVersionException $e) {
+    } catch (InvalidVersionException) {
       return null;
     }
   }
@@ -259,35 +259,72 @@ class Bumper implements BumperInterface
         BumperException::INVALID_BRANCH);
     }
     
-    if ($branch->isRelease()) {
-      
-      // for releases, we need to increment the major version number.  then,
-      // we set the minor and patch numbers to zero, and we can reset the build
-      // string entirely.  thus, something like 1.2.3 becomes 2.0.0.
-      
-      $this->next->setMajor($this->next->getMajor() + 1)->setMinor(0)->setPatch(0)->setBuild(null);
-    } elseif ($branch->isFeature()) {
-      
-      // feature bumps increment the minor version number and reset the patch
-      // and build.  no change is made to the major version number.  so, a
-      // version like 1.2.3 becomes 1.3.0.
-      
-      $this->next->setMinor($this->next->getMinor() + 1)->setPatch(0)->setBuild(null);
-    } elseif ($branch->isBugFix()) {
-      
-      // for bug fixes, we want to increment the patch number and reset the
-      // build.  no changes are made to the major and minor version numbers.
-      // therefore, 1.2.3 becomes 1.2.4.
-      
-      $this->next->setPatch($this->next->getPatch() + 1)->setBuild(null);
-    } else {
-      
-      // at the moment, this else block should never execute; all branches
-      // should be unknown, releases, features, or bug fixes.  but, in case we
-      // add something else someday, we'll handle setting builds here.
-      
-      $this->next->setBuild($this->next->getBuild() + 1);
-    }
+    match (true) {
+      $branch->isRelease() => $this->doReleaseCalculation(),
+      $branch->isFeature() => $this->doFeatureCalculation(),
+      $branch->isBugFix()  => $this->doBugFixCalculation(),
+      default              => $this->doBuildCalculation(),
+    };
+  }
+  
+  /**
+   * doReleaseCalculation
+   *
+   * Calculates the next version for a release, i.e. 1.2.3 becoming 2.0.0.
+   *
+   * @return void
+   */
+  protected function doReleaseCalculation(): void
+  {
+    $this->next
+      ->setMajor($this->next->getMajor() + 1)
+      ->setMinor(0)
+      ->setPatch(0)
+      ->setBuild(null);
+  }
+  
+  /**
+   * doFeatureCalculation
+   *
+   * Calculates the next version for a new feature, i.e. 1.2.3 becoming 1.3.0.
+   *
+   * @return void
+   */
+  protected function doFeatureCalculation(): void
+  {
+    $this->next->setMinor($this->next->getMinor() + 1)
+      ->setPatch(0)
+      ->setBuild(null);
+  }
+  
+  /**
+   * doBugFixCalculation
+   *
+   * Calculates the next version for a release, i.e. 1.2.3 becoming 1.2.4.
+   *
+   * @return void
+   */
+  protected function doBugFixCalculation(): void
+  {
+    $this->next->setPatch($this->next->getPatch() + 1)
+      ->setBuild(null);
+  }
+  
+  /**
+   * doBuildCalculation
+   *
+   * Calculates the next version for a build of an unknown type, i.e. 1.2.3
+   * becoming 1.2.3+1.
+   *
+   * @return void
+   */
+  protected function doBuildCalculation(): void
+  {
+    // it's unlikely that we need this calculation regularly, but it's the
+    // default case for the match statement in the above calculateNextVersion
+    // method.
+    
+    $this->next->setBuild($this->next->getBuild() + 1);
   }
   
   /**
@@ -390,7 +427,7 @@ class Bumper implements BumperInterface
   protected function updateLocalRepo(): string
   {
     exec('git add .');
-    exec('git commit -m "Versions bumped to ' . $this->next .'."');
+    exec('git commit -m "Versions bumped to ' . $this->next . '."');
     $this->echo('Changed files committed to the repo.');
     return "Don't forget to push these changes!";
   }
