@@ -19,7 +19,7 @@
     "php": ">=8.0",
     "dashifen/exception": "^1.2",
     "dashifen/git-branch": "^1.0",
-    "dashifen/repository": "^3.1",
+    "dashifen/repository": "^4.0",
     "dashifen/version": "^1.0"
   },
   "config": {
