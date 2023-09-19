@@ -164,8 +164,7 @@ class Bumper implements BumperInterface
    * isVersionLine
    *
    * Returns true if the specified line appears to be the one on which a
-   * version can be found.  By default, this is the line that has the word
-   * "version:" on it.  If you need something else, simply override it.
+   * version can be found.
    *
    * @param string $line
    *
@@ -173,7 +172,11 @@ class Bumper implements BumperInterface
    */
   protected function isVersionLine(string $line): bool
   {
-    return stripos($line, 'version:') !== false;
+    // there are two cases that we want to check for by default:  a match in a
+    // WordPress plugin or theme header and a match in JSON files.  so, we need
+    // to match both version: and "version": here.
+    
+    return (bool) preg_match('/(?:version|"version"):/i', $line);
   }
   
   /**
